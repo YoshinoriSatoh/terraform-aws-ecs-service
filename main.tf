@@ -209,7 +209,7 @@ resource "aws_service_discovery_service" "api" {
 
 resource "aws_lb_listener_rule" "default" {
   listener_arn = var.listener.arn
-  priority     = var.listener.priority
+  priority     = var.listener.rule.priority
 
   action {
     type             = "forward"
@@ -218,7 +218,7 @@ resource "aws_lb_listener_rule" "default" {
 
   condition {
     host_header {
-      values = [ var.listener.host_header ]
+      values = [ var.listener.rule.host_header ]
     }
   }
 }

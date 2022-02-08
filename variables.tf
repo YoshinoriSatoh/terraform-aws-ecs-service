@@ -67,8 +67,10 @@ variable "ecs_service" {
 variable "listener" {
   type = object({
     arn = string
-    priority = number
-    host_header = string
+    rule = object({
+      priority = number
+      host_header = string
+    })
   })
 }
 
