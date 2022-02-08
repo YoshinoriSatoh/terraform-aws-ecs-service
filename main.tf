@@ -181,6 +181,7 @@ resource "aws_iam_policy" "task_execution_policy_get_parameter" {
 }
 
 resource "aws_iam_role_policy_attachment" "task_execution_policy_get_parameter_attachment" {
+  count       = length(var.parameter_srote.parameter_paths) > 0 ? 1 : 0
   role       = aws_iam_role.task_execution_role.name
   policy_arn = aws_iam_policy.task_execution_policy_get_parameter[0].arn
 }
