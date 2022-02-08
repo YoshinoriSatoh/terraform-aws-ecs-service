@@ -214,7 +214,7 @@ resource "aws_cloudwatch_metric_alarm" "cpu_utilization_too_high" {
   namespace                 = "AWS/ECS"
   period                    = "60"
   statistic                 = "Average"
-  threshold                 = var.alarm_thresholds.cpu_utilization
+  threshold                 = var.metrics_alarm_thresholds.cpu_utilization
   alarm_description         = "Average CPU utilization too high"
   alarm_actions             = [var.metrics_notification_topic_arn]
   ok_actions                = [var.metrics_notification_topic_arn]
@@ -235,7 +235,7 @@ resource "aws_cloudwatch_metric_alarm" "memory_utilization_too_high" {
   namespace                 = "AWS/ECS"
   period                    = "60"
   statistic                 = "Average"
-  threshold                 = var.alarm_thresholds.memory_utilization
+  threshold                 = var.metrics_alarm_thresholds.memory_utilization
   alarm_description         = "Average Memory utilization too high"
   alarm_actions             = [var.metrics_notification_topic_arn]
   ok_actions                = [var.metrics_notification_topic_arn]

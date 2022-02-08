@@ -3,11 +3,11 @@ output "security_group_id" {
 }
 
 output "task_role" {
-  value = aws_iam_role.task-role
+  value = aws_iam_role.task_role
 }
 
 output "task_execution_role" {
-  value = aws_iam_role.task-execution-role
+  value = aws_iam_role.task_execution_role
 }
 
 output "ecs_service_name" {
