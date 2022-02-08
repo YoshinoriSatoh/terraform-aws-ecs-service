@@ -1,0 +1,248 @@
+/**
+ * # Terraform AWS ECS Service module
+ *
+ * ECS Serviceと付随するロール群、セキュリティグループ、メトリクスアラーム、サービスディカバりを作成します。
+ */
+
+data "aws_caller_identity" "current" {}
+data "aws_region" "current" {}
+
+data "aws_ecs_task_definition" "default" {
+  task_definition = var.ecs_task_definition.name
+}
+
+resource "aws_ecs_service" "default" {
+  name                              = local.service.fullname
+  cluster                           = var.ecs_cluster.arn
+  task_definition                   = "${data.aws_ecs_task_definition.default.family}:${data.aws_ecs_task_definition.default.revision}"
+  desired_count                     = var.ecs_service.desired_count
+  platform_version                  = var.ecs_service.platform_version
+  propagate_tags                    = "SERVICE"
+  health_check_grace_period_seconds = var.ecs_service.health_check_grace_period_seconds
+
+  deployment_controller {
+    type = "ECS"
+  }
+
+  capacity_provider_strategy {
+    capacity_provider = var.ecs_service.capacity_provider_strategy.capacity_provider
+    weight            = var.ecs_service.capacity_provider_strategy.weight
+  }
+
+  network_configuration {
+    subnets          = var.subnet_ids
+    security_groups  = [aws_security_group.ecs_service.id]
+    assign_public_ip = false
+  }
+
+  load_balancer {
+    target_group_arn = var.ecs_service.load_balancer.target_group_arn
+    container_name   = var.ecs_service.load_balancer.container.name
+    container_port   = var.ecs_service.load_balancer.container.port
+  }
+
+  service_registries {
+    registry_arn = aws_service_discovery_service.api.arn
+  }
+  
+  lifecycle {
+    ignore_changes = [
+      desired_count,
+      task_definition
+    ]
+  }
+}
+
+resource "aws_cloudwatch_log_group" "default" {
+  name = "/aws/ecs/${local.fullname}"
+}
+
+resource "aws_security_group" "ecs_service" {
+  name        = local.fullname
+  description = local.fullname
+  vpc_id      = var.vpc_id
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group_rule" "ecs_service_ingress" {
+  for_each = {
+    for key, ingress in var.ingresses : key => {
+      description     = ingress.description
+      from_port       = ingress.from_port
+      to_port         = ingress.to_port
+      protocol        = ingress.protocol
+      security_groups = ingress.security_groups
+    }
+  }
+  type                     = "ingress"
+  description              = each.value.description
+  from_port                = each.value.from_port
+  to_port                  = each.value.to_port
+  protocol                 = each.value.protocol
+  source_security_group_id = each.value.security_group_id
+  security_group_id        = aws_security_group.ecs_service.id
+}
+
+## Task Role
+resource "aws_iam_role" "task_role" {
+  name               = "${local.fullname}-task-role"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "ecs-tasks.amazonaws.com"
+      },
+      "Effect": "Allow"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "task_policy_attachment" {
+  count = var.task_policy_arn == "" ? 0 : 1
+  role       = aws_iam_role.task_role.name
+  policy_arn = var.task_policy_arn
+}
+
+## Task Ececution Role
+resource "aws_iam_role" "task_execution_role" {
+  name               = "${local.fullname}-task-execution-role"
+  assume_role_policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Action": "sts:AssumeRole",
+        "Principal": {
+          "Service": "ecs-tasks.amazonaws.com"
+        },
+        "Effect": "Allow"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "AmazonECSTaskExecutionRolePolicy_attachment" {
+  role       = aws_iam_role.task_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_iam_policy" "task_execution_policy_kms" {
+  name        = "${local.fullname}-execution-policy"
+  description = "${local.fullname} execution policy"
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Action" : [
+          "kms:Decrypt"
+        ],
+        "Effect" : "Allow",
+        "Resource" : var.parameter_srote.kms_key_arn
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "task_execution_policy_kms_attachment" {
+  role       = aws_iam_role.task_execution_role.name
+  policy_arn = aws_iam_policy.task_execution_policy_kms.arn
+}
+
+resource "aws_iam_policy" "task_execution_policy_get_parameter" {
+  count = length(var.parameter_srote.parameter_paths) > 0 ? 1 : 0
+  name        = "${local.fullname}-execution-policy"
+  description = "${local.fullname} execution policy"
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Sid" : "AllowParameterStores",
+        "Action" : [
+          "ssm:GetParameter",
+          "ssm:GetParameters",
+        ],
+        "Effect" : "Allow",
+        "Resource" : var.parameter_srote.parameter_paths
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "task_execution_policy_get_parameter_attachment" {
+  role       = aws_iam_role.task_execution_role.name
+  policy_arn = aws_iam_policy.task_execution_policy_get_parameter[0].arn
+}
+
+resource "aws_service_discovery_service" "api" {
+  name = "api"
+
+  dns_config {
+    namespace_id = var.service_discovery.private_dns_namespace_id
+
+    dns_records {
+      ttl  = 5
+      type = "A"
+    }
+
+    routing_policy = "WEIGHTED"
+  }
+
+  health_check_custom_config {
+    failure_threshold = 1
+  }
+}
+
+# Cloudwatch Metric Alerms
+resource "aws_cloudwatch_metric_alarm" "cpu_utilization_too_high" {
+  alarm_name                = "${local.fullname}_cpu_utilization_too_high"
+  comparison_operator       = "GreaterThanThreshold"
+  evaluation_periods        = "3"
+  datapoints_to_alarm       = "2"
+  metric_name               = "CPUUtilization"
+  namespace                 = "AWS/ECS"
+  period                    = "60"
+  statistic                 = "Average"
+  threshold                 = var.alarm_thresholds.cpu_utilization
+  alarm_description         = "Average CPU utilization too high"
+  alarm_actions             = [var.metrics_notification_topic_arn]
+  ok_actions                = [var.metrics_notification_topic_arn]
+  insufficient_data_actions = []
+  treat_missing_data        = "ignore"
+  dimensions = {
+    ClusterName = var.ecs_cluster.name
+    ServiceName = local.service.fullname
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "memory_utilization_too_high" {
+  alarm_name                = "${local.fullname}_memory_utilization_too_high"
+  comparison_operator       = "GreaterThanThreshold"
+  evaluation_periods        = "3"
+  datapoints_to_alarm       = "2"
+  metric_name               = "MemoryUtilization"
+  namespace                 = "AWS/ECS"
+  period                    = "60"
+  statistic                 = "Average"
+  threshold                 = var.alarm_thresholds.memory_utilization
+  alarm_description         = "Average Memory utilization too high"
+  alarm_actions             = [var.metrics_notification_topic_arn]
+  ok_actions                = [var.metrics_notification_topic_arn]
+  insufficient_data_actions = []
+  treat_missing_data        = "ignore"
+  dimensions = {
+    ClusterName = var.ecs_cluster.name
+    ServiceName = local.service.fullname
+  }
+}
