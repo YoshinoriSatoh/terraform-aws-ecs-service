@@ -52,13 +52,6 @@ variable "ecs_service" {
       capacity_provider = string
       weight            = number
     })
-    load_balancer = object({
-      target_group_arn = string
-      container = object({
-        name = string
-        port = number
-      }) 
-    })
   })
   default = {
     capacity_provider_strategy = {
