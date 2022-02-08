@@ -8,7 +8,7 @@ data "aws_caller_identity" "current" {}
 data "aws_region" "current" {}
 
 data "aws_ecs_task_definition" "default" {
-  task_definition = var.ecs_task_definition.name
+  task_definition = var.ecs_task_definition_name
 }
 
 resource "aws_ecs_service" "default" {

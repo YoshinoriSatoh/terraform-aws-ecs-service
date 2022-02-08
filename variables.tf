@@ -91,14 +91,13 @@ variable "ingresses" {
   }))
 }
 
-variable "ecs_task_definition" {
-  type = object({
-    name = string
-  })
+variable "ecs_task_definition_name" {
+  type = string
 }
 
 variable "task_policy_arn" {
   type = string
+  default = ""
 }
 
 variable "service_discovery" {
@@ -112,6 +111,10 @@ variable "parameter_srote" {
     parameter_paths = list(string)
     kms_key_arn      = string
   })
+  default = {
+    parameter_paths = []
+    kms_key_arn = ""
+  }
 }
 
 variable "metrics_alarm_thresholds" {
