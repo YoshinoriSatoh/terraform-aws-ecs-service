@@ -137,6 +137,7 @@ resource "aws_iam_role_policy_attachment" "AmazonECSTaskExecutionRolePolicy_atta
 }
 
 resource "aws_iam_policy" "task_execution_policy_kms" {
+  count       = length(var.parameter_srote.kms_key_arn) > 0 ? 1 : 0
   name        = "${local.fullname}-execution-policy-kms"
   description = "${local.fullname} execution policy kms"
 
@@ -155,6 +156,7 @@ resource "aws_iam_policy" "task_execution_policy_kms" {
 }
 
 resource "aws_iam_role_policy_attachment" "task_execution_policy_kms_attachment" {
+  count       = length(var.parameter_srote.kms_key_arn) > 0 ? 1 : 0
   role       = aws_iam_role.task_execution_role.name
   policy_arn = aws_iam_policy.task_execution_policy_kms.arn
 }
