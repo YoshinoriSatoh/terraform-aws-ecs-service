@@ -44,7 +44,7 @@ resource "aws_ecs_service" "default" {
   service_registries {
     registry_arn = aws_service_discovery_service.api.arn
   }
-  
+
   lifecycle {
     ignore_changes = [
       desired_count,
@@ -73,11 +73,11 @@ resource "aws_security_group" "ecs_service" {
 resource "aws_security_group_rule" "ecs_service_ingress" {
   for_each = {
     for key, ingress in var.ingresses : key => {
-      description     = ingress.description
-      from_port       = ingress.from_port
-      to_port         = ingress.to_port
-      protocol        = ingress.protocol
-      security_groups = ingress.security_groups
+      description       = ingress.description
+      from_port         = ingress.from_port
+      to_port           = ingress.to_port
+      protocol          = ingress.protocol
+      security_group_id = ingress.security_group_id
     }
   }
   type                     = "ingress"
@@ -109,23 +109,23 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "task_policy_attachment" {
-  count = var.task_policy_arn == "" ? 0 : 1
+  count      = var.task_policy_arn == "" ? 0 : 1
   role       = aws_iam_role.task_role.name
   policy_arn = var.task_policy_arn
 }
 
 ## Task Ececution Role
 resource "aws_iam_role" "task_execution_role" {
-  name               = "${local.fullname}-task-execution-role"
+  name = "${local.fullname}-task-execution-role"
   assume_role_policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
+    "Version" : "2012-10-17",
+    "Statement" : [
       {
-        "Action": "sts:AssumeRole",
-        "Principal": {
-          "Service": "ecs-tasks.amazonaws.com"
+        "Action" : "sts:AssumeRole",
+        "Principal" : {
+          "Service" : "ecs-tasks.amazonaws.com"
         },
-        "Effect": "Allow"
+        "Effect" : "Allow"
       }
     ]
   })
@@ -160,7 +160,7 @@ resource "aws_iam_role_policy_attachment" "task_execution_policy_kms_attachment"
 }
 
 resource "aws_iam_policy" "task_execution_policy_get_parameter" {
-  count = length(var.parameter_srote.parameter_paths) > 0 ? 1 : 0
+  count       = length(var.parameter_srote.parameter_paths) > 0 ? 1 : 0
   name        = "${local.fullname}-execution-policy"
   description = "${local.fullname} execution policy"
 

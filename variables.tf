@@ -76,11 +76,11 @@ variable "load_balancer" {
 
 variable "ingresses" {
   type = list(object({
-    description     = string
-    from_port       = number
-    to_port         = number
-    protocol        = string
-    security_group_id  = string
+    description       = string
+    from_port         = number
+    to_port           = number
+    protocol          = string
+    security_group_id = string
   }))
 }
 
@@ -89,7 +89,7 @@ variable "ecs_task_definition_name" {
 }
 
 variable "task_policy_arn" {
-  type = string
+  type    = string
   default = ""
 }
 
@@ -102,11 +102,11 @@ variable "service_discovery" {
 variable "parameter_srote" {
   type = object({
     parameter_paths = list(string)
-    kms_key_arn      = string
+    kms_key_arn     = string
   })
   default = {
     parameter_paths = []
-    kms_key_arn = ""
+    kms_key_arn     = ""
   }
 }
 
