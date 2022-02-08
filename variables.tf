@@ -68,6 +68,7 @@ variable "ecs_service" {
     desired_count                     = 1
     health_check_grace_period_seconds = 60
     platform_version                  = "1.4.0"
+    load_balancer = {}
   }
 }
 
