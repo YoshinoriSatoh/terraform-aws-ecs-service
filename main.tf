@@ -36,9 +36,9 @@ resource "aws_ecs_service" "default" {
   }
 
   load_balancer {
-    target_group_arn = var.ecs_service.load_balancer.target_group_arn
-    container_name   = var.ecs_service.load_balancer.container.name
-    container_port   = var.ecs_service.load_balancer.container.port
+    target_group_arn = var.load_balancer.target_group_arn
+    container_name   = var.load_balancer.container.name
+    container_port   = var.load_balancer.container.port
   }
 
   service_registries {
