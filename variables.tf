@@ -64,13 +64,19 @@ variable "ecs_service" {
   }
 }
 
-variable "load_balancer" {
+variable "listener" {
   type = object({
-    target_group_arn = string
-    container = object({
-      name = string
-      port = number
-    })
+    arn = string
+    priority = number
+    host_header = string
+  })
+}
+
+variable "container" {
+  type = object({
+    name = string
+    port = number
+    health_check_path = string
   })
 }
 

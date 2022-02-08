@@ -36,9 +36,9 @@ resource "aws_ecs_service" "default" {
   }
 
   load_balancer {
-    target_group_arn = var.load_balancer.target_group_arn
-    container_name   = var.load_balancer.container.name
-    container_port   = var.load_balancer.container.port
+    target_group_arn = aws_lb_target_group.default.arn
+    container_name   = var.container.name
+    container_port   = var.container.port
   }
 
   service_registries {
@@ -204,6 +204,38 @@ resource "aws_service_discovery_service" "api" {
 
   health_check_custom_config {
     failure_threshold = 1
+  }
+}
+
+resource "aws_lb_listener_rule" "default" {
+  listener_arn = var.listener.arn
+  priority     = var.listener.priority
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.default.arn
+  }
+
+  condition {
+    host_header {
+      values = [ var.listener.host_header ]
+    }
+  }
+}
+
+resource "aws_lb_target_group" "default" {
+  name        = "${local.service.fullshortname}-${substr(uuid(), 0, 6)}"
+  port        = var.container.port
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = var.vpc_id
+  health_check {
+    path = var.container.health_check_path
+    port = var.container.port
+  }
+  lifecycle {
+    create_before_destroy = true
+    ignore_changes        = [name]
   }
 }
 
