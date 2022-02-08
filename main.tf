@@ -137,8 +137,8 @@ resource "aws_iam_role_policy_attachment" "AmazonECSTaskExecutionRolePolicy_atta
 }
 
 resource "aws_iam_policy" "task_execution_policy_kms" {
-  name        = "${local.fullname}-execution-policy"
-  description = "${local.fullname} execution policy"
+  name        = "${local.fullname}-execution-policy-kms"
+  description = "${local.fullname} execution policy kms"
 
   policy = jsonencode({
     "Version" : "2012-10-17",
@@ -161,8 +161,8 @@ resource "aws_iam_role_policy_attachment" "task_execution_policy_kms_attachment"
 
 resource "aws_iam_policy" "task_execution_policy_get_parameter" {
   count       = length(var.parameter_srote.parameter_paths) > 0 ? 1 : 0
-  name        = "${local.fullname}-execution-policy"
-  description = "${local.fullname} execution policy"
+  name        = "${local.fullname}-execution-policy-get-parameter"
+  description = "${local.fullname} execution policy get parameter"
 
   policy = jsonencode({
     "Version" : "2012-10-17",
