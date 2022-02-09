@@ -1,7 +1,7 @@
 /**
  * # Terraform AWS ECS Service module
  *
- * ECS Serviceと付随するロール群、セキュリティグループ、メトリクスアラーム、サービスディカバりを作成します。
+ * ECS Serviceと付随するロール群、セキュリティグループ、ターゲットグループ、メトリクスアラーム、サービスディカバりを作成します。
  */
 
 data "aws_caller_identity" "current" {}
