@@ -68,7 +68,7 @@ variable "listener" {
   type = object({
     arn = string
     rule = object({
-      priority = number
+      priority    = number
       host_header = string
     })
   })
@@ -76,8 +76,8 @@ variable "listener" {
 
 variable "container" {
   type = object({
-    name = string
-    port = number
+    name              = string
+    port              = number
     health_check_path = string
   })
 }
