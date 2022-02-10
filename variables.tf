@@ -118,6 +118,9 @@ variable "service_discovery" {
   type = object({
     private_dns_namespace_id = string
   })
+  default = {
+    private_dns_namespace_id = ""
+  }
 }
 
 variable "parameter_srote" {
@@ -144,5 +147,6 @@ variable "metrics_alarm_thresholds" {
 
 variable "metrics_notification_topic_arn" {
   type = string
+  default = ""
 }
 

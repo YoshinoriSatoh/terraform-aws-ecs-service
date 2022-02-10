@@ -221,6 +221,7 @@ resource "aws_iam_role_policy_attachment" "task_execution_policy_get_parameter_a
 }
 
 resource "aws_service_discovery_service" "api" {
+  count = var.service_discovery.private_dnamespace_id == "" ? 0 : 1
   name = "api"
 
   dns_config {
@@ -274,6 +275,7 @@ resource "aws_lb_target_group" "default" {
 
 # Cloudwatch Metric Alerms
 resource "aws_cloudwatch_metric_alarm" "cpu_utilization_too_high" {
+  count = metrics_notification_topic_arn == "" ? 0 : 1
   alarm_name                = "${local.fullname}_cpu_utilization_too_high"
   comparison_operator       = "GreaterThanThreshold"
   evaluation_periods        = "3"
@@ -295,6 +297,7 @@ resource "aws_cloudwatch_metric_alarm" "cpu_utilization_too_high" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "memory_utilization_too_high" {
+  count = metrics_notification_topic_arn == "" ? 0 : 1
   alarm_name                = "${local.fullname}_memory_utilization_too_high"
   comparison_operator       = "GreaterThanThreshold"
   evaluation_periods        = "3"
