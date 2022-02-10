@@ -137,6 +137,7 @@ resource "aws_iam_role_policy_attachment" "AmazonECSTaskExecutionRolePolicy_atta
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+### EXEC Command実行時に必要なポリシー
 resource "aws_iam_policy" "task_execution_policy_session_manager" {
   name        = "${local.fullname}-execution-policy-session-manager"
   description = "${local.fullname} execution policy session-manager"
