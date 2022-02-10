@@ -19,6 +19,7 @@ resource "aws_ecs_service" "default" {
   platform_version                  = var.ecs_service.platform_version
   propagate_tags                    = "SERVICE"
   health_check_grace_period_seconds = var.ecs_service.health_check_grace_period_seconds
+  enable_execute_command            = true
 
   deployment_controller {
     type = "ECS"
