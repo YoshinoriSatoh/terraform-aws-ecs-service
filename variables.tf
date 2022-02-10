@@ -87,6 +87,11 @@ variable "container" {
     port              = number
     health_check_path = string
   })
+  default = {
+    health_check_path = ""
+    name = ""
+    port = 1
+  }
 }
 
 variable "ingresses" {
