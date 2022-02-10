@@ -36,10 +36,13 @@ resource "aws_ecs_service" "default" {
     assign_public_ip = false
   }
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.default.arn
-    container_name   = var.container.name
-    container_port   = var.container.port
+  dynamic "load_balancer" {
+    for_each = var.listener.arn == "" ? [] : [1]
+    content {
+      target_group_arn = aws_lb_target_group.default.arn
+      container_name   = var.container.name
+      container_port   = var.container.port
+    }
   }
 
   service_registries {
@@ -237,6 +240,7 @@ resource "aws_service_discovery_service" "api" {
 }
 
 resource "aws_lb_listener_rule" "default" {
+  count        = var.listener.arn == "" ? 0 : 1
   listener_arn = var.listener.arn
   priority     = var.listener.rule.priority
 

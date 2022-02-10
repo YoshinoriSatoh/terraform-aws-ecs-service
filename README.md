@@ -30,12 +30,14 @@ No modules.
 | [aws_ecs_service.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service) | resource |
 | [aws_iam_policy.task_execution_policy_get_parameter](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.task_execution_policy_kms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.task_policy_session_manager](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_role.task_execution_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.task_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy_attachment.AmazonECSTaskExecutionRolePolicy_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.task_execution_policy_get_parameter_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.task_execution_policy_kms_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.task_policy_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.task_policy_session_manager_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_lb_listener_rule.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener_rule) | resource |
 | [aws_lb_target_group.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group) | resource |
 | [aws_security_group.ecs_service](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
@@ -54,7 +56,7 @@ No modules.
 | <a name="input_ecs_service"></a> [ecs\_service](#input\_ecs\_service) | n/a | <pre>object({<br>    desired_count                     = number<br>    platform_version                  = string<br>    health_check_grace_period_seconds = number<br>    capacity_provider_strategy = object({<br>      capacity_provider = string<br>      weight            = number<br>    })<br>  })</pre> | <pre>{<br>  "capacity_provider_strategy": {<br>    "capacity_provider": "FARGATE",<br>    "weight": 1<br>  },<br>  "desired_count": 1,<br>  "health_check_grace_period_seconds": 60,<br>  "platform_version": "1.4.0"<br>}</pre> | no |
 | <a name="input_ecs_task_definition_name"></a> [ecs\_task\_definition\_name](#input\_ecs\_task\_definition\_name) | n/a | `string` | n/a | yes |
 | <a name="input_ingresses"></a> [ingresses](#input\_ingresses) | n/a | <pre>list(object({<br>    description       = string<br>    from_port         = number<br>    to_port           = number<br>    protocol          = string<br>    security_group_id = string<br>  }))</pre> | n/a | yes |
-| <a name="input_listener"></a> [listener](#input\_listener) | n/a | <pre>object({<br>    arn = string<br>    rule = object({<br>      priority    = number<br>      host_header = string<br>    })<br>  })</pre> | n/a | yes |
+| <a name="input_listener"></a> [listener](#input\_listener) | n/a | <pre>object({<br>    arn = string<br>    rule = object({<br>      priority    = number<br>      host_header = string<br>    })<br>  })</pre> | <pre>{<br>  "arn": "",<br>  "rule": {<br>    "host_header": "",<br>    "priority": 1<br>  }<br>}</pre> | no |
 | <a name="input_metrics_alarm_thresholds"></a> [metrics\_alarm\_thresholds](#input\_metrics\_alarm\_thresholds) | n/a | <pre>object({<br>    cpu_utilization    = number<br>    memory_utilization = number<br>  })</pre> | <pre>{<br>  "cpu_utilization": 80,<br>  "memory_utilization": 80<br>}</pre> | no |
 | <a name="input_metrics_notification_topic_arn"></a> [metrics\_notification\_topic\_arn](#input\_metrics\_notification\_topic\_arn) | n/a | `string` | n/a | yes |
 | <a name="input_parameter_srote"></a> [parameter\_srote](#input\_parameter\_srote) | n/a | <pre>object({<br>    parameter_paths = list(string)<br>    kms_key_arn     = string<br>  })</pre> | <pre>{<br>  "kms_key_arn": "",<br>  "parameter_paths": []<br>}</pre> | no |

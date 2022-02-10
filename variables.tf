@@ -72,6 +72,13 @@ variable "listener" {
       host_header = string
     })
   })
+  default = {
+    arn = ""
+    rule = {
+      host_header = ""
+      priority    = 1
+    }
+  }
 }
 
 variable "container" {
