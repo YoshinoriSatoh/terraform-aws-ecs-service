@@ -115,6 +115,33 @@ resource "aws_iam_role_policy_attachment" "task_policy_attachment" {
   policy_arn = var.task_policy_arn
 }
 
+### EXEC Command実行時に必要なポリシー
+resource "aws_iam_policy" "task_policy_session_manager" {
+  name        = "${local.fullname}-policy-session-manager"
+  description = "${local.fullname} policy session-manager"
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Action" : [
+          "ssmmessages:CreateControlChannel",
+          "ssmmessages:CreateDataChannel",
+          "ssmmessages:OpenControlChannel",
+          "ssmmessages:OpenDataChannel"
+        ],
+        "Effect" : "Allow",
+        "Resource" : "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "task_policy_session_manager_attachment" {
+  role       = aws_iam_role.task_role.name
+  policy_arn = aws_iam_policy.task_policy_session_manager.arn
+}
+
 ## Task Ececution Role
 resource "aws_iam_role" "task_execution_role" {
   name = "${local.fullname}-task-execution-role"
@@ -137,32 +164,6 @@ resource "aws_iam_role_policy_attachment" "AmazonECSTaskExecutionRolePolicy_atta
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-### EXEC Command実行時に必要なポリシー
-resource "aws_iam_policy" "task_execution_policy_session_manager" {
-  name        = "${local.fullname}-execution-policy-session-manager"
-  description = "${local.fullname} execution policy session-manager"
-
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Action" : [
-          "ssmmessages:CreateControlChannel",
-          "ssmmessages:CreateDataChannel",
-          "ssmmessages:OpenControlChannel",
-          "ssmmessages:OpenDataChannel"
-        ],
-        "Effect" : "Allow",
-        "Resource" : "*"
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "task_execution_policy_session_manager_attachment" {
-  role       = aws_iam_role.task_execution_role.name
-  policy_arn = aws_iam_policy.task_execution_policy_session_manager.arn
-}
 
 resource "aws_iam_policy" "task_execution_policy_kms" {
   count       = var.parameter_srote.kms_key_arn != "" ? 1 : 0
