@@ -15,19 +15,19 @@ resource "aws_ecs_service" "default" {
   name                              = local.service.fullname
   cluster                           = var.ecs_cluster.arn
   task_definition                   = "${data.aws_ecs_task_definition.default.family}:${data.aws_ecs_task_definition.default.revision}"
-  desired_count                     = var.ecs_service.desired_count
-  platform_version                  = var.ecs_service.platform_version
+  desired_count                     = var.desired_count
+  platform_version                  = var.platform_version
   propagate_tags                    = "SERVICE"
-  health_check_grace_period_seconds = var.ecs_service.health_check_grace_period_seconds
-  enable_execute_command            = true
+  health_check_grace_period_seconds = var.load_balancer_enabled ? var.health_check_grace_period_seconds : null
+  enable_execute_command            = var.enable_execute_command
 
   deployment_controller {
     type = "ECS"
   }
 
   capacity_provider_strategy {
-    capacity_provider = var.ecs_service.capacity_provider_strategy.capacity_provider
-    weight            = var.ecs_service.capacity_provider_strategy.weight
+    capacity_provider = var.capacity_provider_strategy.capacity_provider
+    weight            = var.capacity_provider_strategy.weight
   }
 
   network_configuration {
@@ -36,14 +36,16 @@ resource "aws_ecs_service" "default" {
     assign_public_ip = false
   }
 
-  load_balancer {
-    target_group_arn = aws_lb_target_group.default.arn
-    container_name   = var.container.name
-    container_port   = var.container.port
+  dynamic "load_balancer" {
+    for_each         = var.load_balancer_enabled ? [1] : []
+    target_group_arn = aws_lb_target_group[0].default.arn
+    container_name   = var.load_balancer.container.name
+    container_port   = var.load_balancer.container.port
   }
 
-  service_registries {
-    registry_arn = aws_service_discovery_service.api.arn
+  dynamic "service_registries" {
+    for_each     = var.service_discovery_enabled ? [1] : []
+    registry_arn = aws_service_discovery_service.this[0].arn
   }
 
   lifecycle {
@@ -117,6 +119,7 @@ resource "aws_iam_role_policy_attachment" "task_policy_attachment" {
 
 ### EXEC Command実行時に必要なポリシー
 resource "aws_iam_policy" "task_policy_session_manager" {
+  count       = var.nable_execute_command ? 1 : 0
   name        = "${local.fullname}-policy-session-manager"
   description = "${local.fullname} policy session-manager"
 
@@ -136,10 +139,10 @@ resource "aws_iam_policy" "task_policy_session_manager" {
     ]
   })
 }
-
 resource "aws_iam_role_policy_attachment" "task_policy_session_manager_attachment" {
+  count      = var.nable_execute_command ? 1 : 0
   role       = aws_iam_role.task_role.name
-  policy_arn = aws_iam_policy.task_policy_session_manager.arn
+  policy_arn = aws_iam_policy.task_policy_session_manager[0].arn
 }
 
 ## Task Ececution Role
@@ -217,8 +220,9 @@ resource "aws_iam_role_policy_attachment" "task_execution_policy_get_parameter_a
   policy_arn = aws_iam_policy.task_execution_policy_get_parameter[0].arn
 }
 
-resource "aws_service_discovery_service" "api" {
-  name = "api"
+resource "aws_service_discovery_service" "this" {
+  count = var.service_discovery_enabled ? 1 : 0
+  name  = local.fullname
 
   dns_config {
     namespace_id = var.service_discovery.private_dns_namespace_id
@@ -237,8 +241,9 @@ resource "aws_service_discovery_service" "api" {
 }
 
 resource "aws_lb_listener_rule" "default" {
-  listener_arn = var.listener.arn
-  priority     = var.listener.rule.priority
+  count        = var.load_balancer_enabled ? 1 : 0
+  listener_arn = var.load_balancer.listener.arn
+  priority     = var.load_balancer.listener.rule.priority
 
   action {
     type             = "forward"
@@ -247,20 +252,21 @@ resource "aws_lb_listener_rule" "default" {
 
   condition {
     host_header {
-      values = [var.listener.rule.host_header]
+      values = [var.load_balancer.listener.rule.host_header]
     }
   }
 }
 
 resource "aws_lb_target_group" "default" {
+  count       = var.load_balancer_enabled ? 1 : 0
   name        = "${local.service.fullshortname}-${substr(uuid(), 0, 6)}"
-  port        = var.container.port
+  port        = var.load_balancer.container.port
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = var.vpc_id
   health_check {
-    path = var.container.health_check_path
-    port = var.container.port
+    path = var.load_balancer.container.health_check_path
+    port = var.load_balancer.container.port
   }
   lifecycle {
     create_before_destroy = true

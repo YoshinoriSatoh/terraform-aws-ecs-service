@@ -30,17 +30,19 @@ No modules.
 | [aws_ecs_service.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service) | resource |
 | [aws_iam_policy.task_execution_policy_get_parameter](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_policy.task_execution_policy_kms](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
+| [aws_iam_policy.task_policy_session_manager](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_role.task_execution_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.task_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy_attachment.AmazonECSTaskExecutionRolePolicy_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.task_execution_policy_get_parameter_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.task_execution_policy_kms_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.task_policy_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.task_policy_session_manager_attachment](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_lb_listener_rule.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener_rule) | resource |
 | [aws_lb_target_group.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group) | resource |
 | [aws_security_group.ecs_service](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
 | [aws_security_group_rule.ecs_service_ingress](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule) | resource |
-| [aws_service_discovery_service.api](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/service_discovery_service) | resource |
+| [aws_service_discovery_service.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/service_discovery_service) | resource |
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_ecs_task_definition.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ecs_task_definition) | data source |
 | [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
@@ -49,17 +51,22 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_container"></a> [container](#input\_container) | n/a | <pre>object({<br>    name              = string<br>    port              = number<br>    health_check_path = string<br>  })</pre> | n/a | yes |
+| <a name="input_capacity_provider_strategy"></a> [capacity\_provider\_strategy](#input\_capacity\_provider\_strategy) | n/a | <pre>object({<br>    capacity_provider = string<br>    weight            = number<br>  })</pre> | <pre>{<br>  "capacity_provider": "FARGATE",<br>  "weight": 1<br>}</pre> | no |
+| <a name="input_desired_count"></a> [desired\_count](#input\_desired\_count) | n/a | `number` | `1` | no |
 | <a name="input_ecs_cluster"></a> [ecs\_cluster](#input\_ecs\_cluster) | n/a | <pre>object({<br>    arn  = string<br>    name = string<br>  })</pre> | n/a | yes |
-| <a name="input_ecs_service"></a> [ecs\_service](#input\_ecs\_service) | n/a | <pre>object({<br>    desired_count                     = number<br>    platform_version                  = string<br>    health_check_grace_period_seconds = number<br>    capacity_provider_strategy = object({<br>      capacity_provider = string<br>      weight            = number<br>    })<br>  })</pre> | <pre>{<br>  "capacity_provider_strategy": {<br>    "capacity_provider": "FARGATE",<br>    "weight": 1<br>  },<br>  "desired_count": 1,<br>  "health_check_grace_period_seconds": 60,<br>  "platform_version": "1.4.0"<br>}</pre> | no |
 | <a name="input_ecs_task_definition_name"></a> [ecs\_task\_definition\_name](#input\_ecs\_task\_definition\_name) | n/a | `string` | n/a | yes |
+| <a name="input_enable_execute_command"></a> [enable\_execute\_command](#input\_enable\_execute\_command) | n/a | `bool` | `false` | no |
+| <a name="input_health_check_grace_period_seconds"></a> [health\_check\_grace\_period\_seconds](#input\_health\_check\_grace\_period\_seconds) | n/a | `number` | `60` | no |
 | <a name="input_ingresses"></a> [ingresses](#input\_ingresses) | n/a | <pre>list(object({<br>    description       = string<br>    from_port         = number<br>    to_port           = number<br>    protocol          = string<br>    security_group_id = string<br>  }))</pre> | n/a | yes |
-| <a name="input_listener"></a> [listener](#input\_listener) | n/a | <pre>object({<br>    arn = string<br>    rule = object({<br>      priority    = number<br>      host_header = string<br>    })<br>  })</pre> | n/a | yes |
+| <a name="input_load_balancer"></a> [load\_balancer](#input\_load\_balancer) | n/a | <pre>object({<br>    listener = object({<br>      arn = string<br>      rule = object({<br>        priority    = number<br>        host_header = string<br>      })<br>    })<br>    container = object({<br>      name              = string<br>      port              = number<br>      health_check_path = string<br>    })<br>  })</pre> | n/a | yes |
+| <a name="input_load_balancer_enabled"></a> [load\_balancer\_enabled](#input\_load\_balancer\_enabled) | n/a | `bool` | `false` | no |
 | <a name="input_metrics_alarm_thresholds"></a> [metrics\_alarm\_thresholds](#input\_metrics\_alarm\_thresholds) | n/a | <pre>object({<br>    cpu_utilization    = number<br>    memory_utilization = number<br>  })</pre> | <pre>{<br>  "cpu_utilization": 80,<br>  "memory_utilization": 80<br>}</pre> | no |
 | <a name="input_metrics_notification_topic_arn"></a> [metrics\_notification\_topic\_arn](#input\_metrics\_notification\_topic\_arn) | n/a | `string` | n/a | yes |
 | <a name="input_parameter_srote"></a> [parameter\_srote](#input\_parameter\_srote) | n/a | <pre>object({<br>    parameter_paths = list(string)<br>    kms_key_arn     = string<br>  })</pre> | <pre>{<br>  "kms_key_arn": "",<br>  "parameter_paths": []<br>}</pre> | no |
+| <a name="input_platform_version"></a> [platform\_version](#input\_platform\_version) | n/a | `string` | `"1.4.0"` | no |
 | <a name="input_service"></a> [service](#input\_service) | n/a | <pre>object({<br>    name      = string<br>    shortname = string<br>    env       = string<br>  })</pre> | n/a | yes |
-| <a name="input_service_discovery"></a> [service\_discovery](#input\_service\_discovery) | n/a | <pre>object({<br>    private_dns_namespace_id = string<br>  })</pre> | n/a | yes |
+| <a name="input_service_discovery"></a> [service\_discovery](#input\_service\_discovery) | n/a | <pre>object({<br>    private_dns_namespace_id = string<br>  })</pre> | <pre>{<br>  "private_dns_namespace_id": ""<br>}</pre> | no |
+| <a name="input_service_discovery_enabled"></a> [service\_discovery\_enabled](#input\_service\_discovery\_enabled) | n/a | `bool` | `false` | no |
 | <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | n/a | `list(string)` | n/a | yes |
 | <a name="input_task_policy_arn"></a> [task\_policy\_arn](#input\_task\_policy\_arn) | n/a | `string` | `""` | no |
 | <a name="input_tf"></a> [tf](#input\_tf) | n/a | <pre>object({<br>    name          = string<br>    shortname     = string<br>    env           = string<br>    fullname      = string<br>    fullshortname = string<br>  })</pre> | n/a | yes |

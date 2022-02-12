@@ -43,42 +43,56 @@ variable "ecs_cluster" {
   })
 }
 
-variable "ecs_service" {
+variable "capacity_provider_strategy" {
   type = object({
-    desired_count                     = number
-    platform_version                  = string
-    health_check_grace_period_seconds = number
-    capacity_provider_strategy = object({
-      capacity_provider = string
-      weight            = number
-    })
+    capacity_provider = string
+    weight            = number
   })
   default = {
-    capacity_provider_strategy = {
-      capacity_provider = "FARGATE"
-      weight            = 1
-    }
-    desired_count                     = 1
-    health_check_grace_period_seconds = 60
-    platform_version                  = "1.4.0"
+    capacity_provider = "FARGATE"
+    weight            = 1
   }
 }
 
-variable "listener" {
-  type = object({
-    arn = string
-    rule = object({
-      priority    = number
-      host_header = string
-    })
-  })
+variable "desired_count" {
+  type    = number
+  default = 1
 }
 
-variable "container" {
+variable "platform_version" {
+  type    = string
+  default = "1.4.0"
+}
+
+variable "health_check_grace_period_seconds" {
+  type    = number
+  default = 60
+}
+
+variable "enable_execute_command" {
+  type    = bool
+  default = false
+}
+
+variable "load_balancer_enabled" {
+  type    = bool
+  default = false
+}
+
+variable "load_balancer" {
   type = object({
-    name              = string
-    port              = number
-    health_check_path = string
+    listener = object({
+      arn = string
+      rule = object({
+        priority    = number
+        host_header = string
+      })
+    })
+    container = object({
+      name              = string
+      port              = number
+      health_check_path = string
+    })
   })
 }
 
@@ -101,10 +115,18 @@ variable "task_policy_arn" {
   default = ""
 }
 
+variable "service_discovery_enabled" {
+  type    = bool
+  default = false
+}
+
 variable "service_discovery" {
   type = object({
     private_dns_namespace_id = string
   })
+  default = {
+    private_dns_namespace_id = ""
+  }
 }
 
 variable "parameter_srote" {
