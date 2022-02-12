@@ -111,10 +111,10 @@ resource "aws_iam_role" "task_role" {
 EOF
 }
 
-resource "aws_iam_role_policy_attachment" "task_policy_attachment" {
-  count      = var.task_policy_arn == "" ? 0 : 1
+resource "aws_iam_role_policy_attachment" "additional_task_policy_attachment" {
+  count      = var.additional_task_policy_arn == "" ? 0 : 1
   role       = aws_iam_role.task_role.name
-  policy_arn = var.task_policy_arn
+  policy_arn = var.additional_task_policy_arn
 }
 
 ### EXEC Command実行時に必要なポリシー

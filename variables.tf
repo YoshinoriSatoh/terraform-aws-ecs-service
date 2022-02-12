@@ -110,7 +110,7 @@ variable "ecs_task_definition_name" {
   type = string
 }
 
-variable "task_policy_arn" {
+variable "additional_task_policy_arn" {
   type    = string
   default = ""
 }
