@@ -2,7 +2,7 @@ output "security_group_id" {
   value = aws_security_group.ecs_service.id
 }
 
-output "esc_service" {
+output "ecs_service" {
   value = aws_ecs_service.default
 }
 
