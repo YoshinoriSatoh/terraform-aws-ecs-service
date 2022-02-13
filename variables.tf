@@ -104,6 +104,7 @@ variable "ingresses" {
     protocol          = string
     security_group_id = string
   }))
+  default = []
 }
 
 variable "ecs_task_definition_name" {
