@@ -2,6 +2,10 @@ output "security_group_id" {
   value = aws_security_group.ecs_service.id
 }
 
+output "esc_service" {
+  value = aws_ecs_service.default
+}
+
 output "task_role" {
   value = aws_iam_role.task_role
 }
