@@ -94,6 +94,20 @@ variable "load_balancer" {
       health_check_path = string
     })
   })
+  default = {
+    container = {
+      health_check_path = ""
+      name = ""
+      port = 0
+    }
+    listener = {
+      arn = ""
+      rule = {
+        host_header = ""
+        priority = 0
+      }
+    }
+  }
 }
 
 variable "ingresses" {
