@@ -18,8 +18,8 @@ variable "service" {
 
 locals {
   service = {
-    fullname      = var.service.env == "" ? var.service.name : "${var.service.name}-${var.service.env}"
-    fullshortname = var.service.env == "" ? var.service.name : "${var.service.shortname}-${var.service.env}"
+    fullname      = var.service.env == "" ? replace(var.service.name, "_", "-") : replace("${var.service.name}-${var.service.env}", "_", "-")
+    fullshortname = var.service.env == "" ? replace(var.service.shortname, "_", "-") : replace("${var.service.name}-${var.shortservice.env}", "_", "-")
   }
 }
 
