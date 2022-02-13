@@ -38,14 +38,18 @@ resource "aws_ecs_service" "default" {
 
   dynamic "load_balancer" {
     for_each         = var.load_balancer_enabled ? [1] : []
-    target_group_arn = aws_lb_target_group[0].default.arn
-    container_name   = var.load_balancer.container.name
-    container_port   = var.load_balancer.container.port
+    content {
+      target_group_arn = aws_lb_target_group.default[0].arn
+      container_name   = var.load_balancer.container.name
+      container_port   = var.load_balancer.container.port
+    }
   }
 
   dynamic "service_registries" {
     for_each     = var.service_discovery_enabled ? [1] : []
-    registry_arn = aws_service_discovery_service.this[0].arn
+    content {
+      registry_arn = aws_service_discovery_service.this[0].arn
+    }
   }
 
   lifecycle {
@@ -119,7 +123,7 @@ resource "aws_iam_role_policy_attachment" "additional_task_policy_attachment" {
 
 ### EXEC Command実行時に必要なポリシー
 resource "aws_iam_policy" "task_policy_session_manager" {
-  count       = var.nable_execute_command ? 1 : 0
+  count       = var.enable_execute_command ? 1 : 0
   name        = "${local.fullname}-policy-session-manager"
   description = "${local.fullname} policy session-manager"
 
