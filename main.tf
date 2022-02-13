@@ -144,7 +144,7 @@ resource "aws_iam_policy" "task_policy_session_manager" {
   })
 }
 resource "aws_iam_role_policy_attachment" "task_policy_session_manager_attachment" {
-  count      = var.nable_execute_command ? 1 : 0
+  count      = var.enable_execute_command ? 1 : 0
   role       = aws_iam_role.task_role.name
   policy_arn = aws_iam_policy.task_policy_session_manager[0].arn
 }
@@ -251,7 +251,7 @@ resource "aws_lb_listener_rule" "default" {
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.default.arn
+    target_group_arn = aws_lb_target_group.default[0].arn
   }
 
   condition {
