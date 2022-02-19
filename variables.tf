@@ -84,8 +84,9 @@ variable "load_balancer" {
     listener = object({
       arn = string
       rule = object({
-        priority    = number
-        host_header = string
+        priority     = number
+        host_header  = string
+        path_pattern = string
       })
     })
     container = object({
@@ -105,6 +106,7 @@ variable "load_balancer" {
       rule = {
         host_header = ""
         priority = 0
+        path_pattern = "*"
       }
     }
   }

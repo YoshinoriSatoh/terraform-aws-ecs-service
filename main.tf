@@ -259,6 +259,12 @@ resource "aws_lb_listener_rule" "default" {
       values = [var.load_balancer.listener.rule.host_header]
     }
   }
+
+  condition {
+    path_pattern {
+      values = [var.load_balancer.listener.rule.path_pattern]
+    }
+  }
 }
 
 resource "aws_lb_target_group" "default" {
