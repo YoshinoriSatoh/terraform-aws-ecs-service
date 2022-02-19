@@ -61,7 +61,7 @@ resource "aws_ecs_service" "default" {
 }
 
 resource "aws_cloudwatch_log_group" "default" {
-  name = "/aws/ecs/${local.fullname}"
+  name = "/aws/ecs/${var.tf.fullname}/${local.service.fullname}"
 }
 
 resource "aws_security_group" "ecs_service" {
