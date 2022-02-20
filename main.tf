@@ -85,6 +85,7 @@ resource "aws_security_group_rule" "ecs_service_ingress" {
       to_port           = ingress.to_port
       protocol          = ingress.protocol
       security_group_id = ingress.security_group_id
+      cidr_blocks       = ingress.cidr_blocks
     }
   }
   type                     = "ingress"
