@@ -94,7 +94,7 @@ resource "aws_security_group_rule" "ecs_service_ingress" {
   to_port                  = each.value.to_port
   protocol                 = each.value.protocol
   source_security_group_id = each.value.security_group_id
-  cidr_blocks              = aws_security_group.cidr_blocks
+  cidr_blocks              = each.value.cidr_blocks
   security_group_id        = aws_security_group.ecs_service.id
 }
 
