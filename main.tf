@@ -228,7 +228,7 @@ resource "aws_iam_role_policy_attachment" "task_execution_policy_get_parameter_a
 
 resource "aws_service_discovery_service" "this" {
   count = var.service_discovery_enabled ? 1 : 0
-  name  = local.fullname
+  name  = local.service.fullname
 
   dns_config {
     namespace_id = var.service_discovery.private_dns_namespace_id
